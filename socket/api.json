@@ -1,0 +1,115 @@
+{
+  "version": "0.1.0",
+  "namespaces": {
+    "default": {
+      "options": {
+        "query": {
+          "token": {
+            "type": "string",
+            "description": "JWT Login Token",
+            "example": "eyJhbGciOiJIUzI1NiIsIn..."
+          }
+        }
+      },
+      "events": {
+        "message": {
+          "emit": {
+            "parameters": [{
+              "type": "*",
+              "name": "message",
+              "schema": {
+                "type": "string"
+              }
+            }],
+            "summary": "Sending a new 'message' event"
+          },
+          "on": {
+            "content": [{
+              "type": "*",
+              "name": "message",
+              "required": true
+            }],
+            "summary": "Receiving a new 'message' event"
+          }
+        }
+      }
+    },
+    "message": {
+      "channels": [],
+      "options": {
+        "query": {
+          "token": {
+            "type": "string",
+            "description": "JWT Login Token",
+            "example": "eyJhbGciOiJIUzI1NiIsIn..."
+          }
+        }
+      },
+      "events": {
+        "NEW_MESSAGE": {
+          "on": {
+            "content": [{
+              "name": "newMessage",
+              "schema": {
+                "$ref": "#/definitions/Message"
+              },
+              "description": "New Message from someone"
+            }]
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Message": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "sender": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "name": "string"
+            }
+          }
+        },
+        "conversationId": {
+          "type": "integer"
+        },
+        "classroomId": {
+          "type": "integer"
+        },
+        "replies": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer"
+              },
+              "sender": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "name": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "message": {
+          "type": ["string", "object"],
+          "description": "Formatted text message, can be in JSON or string format."
+        },
+        "createdAt": {
+          "type": "integer"
+        }
+      }
+    }
+  }
+}
