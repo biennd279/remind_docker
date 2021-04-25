@@ -27,10 +27,10 @@ module.exports = {
   production: {
     client: "mysql",
     connection: {
-      host: process.env.PROD_DATABASE_HOST || "localhost",
-      user: process.env.PROD_DATABASE_USERNAME || "root",
-      password: process.env.PROD_DATABASE_PASSWORD || "password",
-      database: process.env.PROD_DATABASE_NAME || "remind_clone",
+      host: process.env.DATABASE_HOST || "localhost",
+      user: process.env.DATABASE_USERNAME || "root",
+      password: process.env.DATABASE_PASSWORD || "password",
+      database: process.env.DATABASE_NAME || "remind_clone",
       charset: "utf8mb4",
     },
     pool: {
