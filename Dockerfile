@@ -1,12 +1,13 @@
-FROM node:14.6.0
+FROM node:alpine3.13
 
-ENV NODE_ENV=production
+ENV NODE_ENV production
+
 WORKDIR /app
 
-COPY ["package.json", "package-lock.json*", "./"]
-
-RUN npm install --production
+COPY ["package.json", "./"]
 
 COPY . .
 
-CMD ["node", "./bin/www"]
+RUN npm install --silent --production --save
+
+CMD ["npm", "run", "start"]
