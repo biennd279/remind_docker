@@ -21,13 +21,14 @@ services:
     container_name: remind
     environment:
       PORT: 3000
+    command: ["npm", "start"]
     depends_on:
       - db
     links:
       - db
     volumes:
+      - '/app/node_modules'
       - '.:/app'
-      - './.docker/node_modules:/node_modules'
 
   web:
     image: 'nginx:1.20-alpine'
