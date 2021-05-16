@@ -148,7 +148,7 @@ const joinClassroom = async (req, res, next) => {
       return responseUtil.error(res, 200, "Already joined");
     } else if (await classroomService.isOwnClass(user, classroom)) {
       return responseUtil.error(res, 200, "You are teacher")
-    }else {
+    } else {
       const response = await classroomService.joinClassroom(user, classroom);
       if (response) {
         return responseUtil.success(res, 201, response);
@@ -164,9 +164,10 @@ const joinClassroomViaCode = async (req, res, next) => {
     const classroomCode = req.params.classroomCode;
     const {  user  } = req;
     const classroom = await classroomService.getClassroomViaCode(classroomCode);
+
     if (await classroomService.isStudentInClassroom(user, classroom)) {
       return responseUtil.error(res, 200, "Already joined");
-    } else if (await classroom.isOwnClass(user, classroom)) {
+    } else if (await classroomService.isOwnClass(user, classroom)) {
       return responseUtil.error(res, 200, "You are teacher")
     } else {
       const response = await classroomService.joinClassroom(user, classroom);
