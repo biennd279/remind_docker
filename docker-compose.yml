@@ -21,7 +21,8 @@ services:
       PORT: 3000
     command:
       - npm
-      - start
+      - run
+      - debug
     depends_on:
       - db
     links:

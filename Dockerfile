@@ -9,3 +9,7 @@ COPY ["package.json", "/app"]
 RUN npm install --production
 
 ENV PATH /app/node_modules/.bin:$PATH
+
+ENV ENV DEBUG=*
+
+RUN npm install -g nodemon cross-env

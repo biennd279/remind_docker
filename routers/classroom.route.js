@@ -13,7 +13,7 @@ router.get("/my-class", classroomController.getUserClassrooms);
 
 router.post("/join/:classroomCode", classroomController.joinClassroomViaCode);
 
-router.use('/:classroomId', classroomController.middleware)
+router.use('/:classroomId', classroomController.validateClassId)
 
 router
   .route("/:classroomId")
@@ -22,7 +22,7 @@ router
   .patch(classroomController.patchClassroom)
   .delete(classroomController.deleteClassroom);
 
-router.get("/:classroomId/owners", classroomController.getOwners)
+router.get("/:classroomId/owners",classroomController.getOwners)
 
 router.get("/:classroomId/students", classroomController.getStudents)
 

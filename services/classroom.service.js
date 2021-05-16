@@ -133,6 +133,26 @@ function patchClassroom(classroom, newClassroom) {
 
 function updateClassroomAvatar(classroom, avatarUrl) {}
 
+/**
+ *
+ * @param {User} user
+ * @param {Classroom} classroom
+ */
+async function isStudentInClassroom(user, classroom) {
+  let isStudent = await classroom.$relatedQuery("students").where("id", user.id).resultSize();
+  return isStudent > 0;
+}
+
+/**
+ *
+ * @param {User} user
+ * @param {Classroom} classroom
+ */
+async function isOwnClass(user, classroom) {
+  let isOwn = await classroom.$relatedQuery("owner").where("id", user.id).resultSize();;
+  return isOwn > 0;
+}
+
 module.exports = {
   getAllClassrooms,
   getClassroom,
@@ -150,4 +170,6 @@ module.exports = {
   getClassroomJoined,
   getAllMembers,
   getUserClassrooms,
+  isStudentInClassroom,
+  isOwnClass,
 };
