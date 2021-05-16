@@ -144,11 +144,16 @@ const getStudents = async (req, res, next) => {
 const joinClassroom = async (req, res, next) => {
   try {
     const { user, classroom } = req;
-    const response = await classroomService.joinClassroom(user, classroom);
-    if (response) {
-      return responseUtil.success(res, 201, response);
+    if (await classroomService.isStudentInClassroom(user, classroom)) {
+      return responseUtil.error(res, 200, "Already joined");
+    } else if (await classroomService.isOwnClass(user, classroom)) {
+      return responseUtil.error(res, 200, "You are teacher")
+    }else {
+      const response = await classroomService.joinClassroom(user, classroom);
+      if (response) {
+        return responseUtil.success(res, 201, response);
+      }
     }
-    return responseUtil.error(res, 200, "Already joined");
   } catch (err) {
     next(err);
   }
@@ -159,11 +164,16 @@ const joinClassroomViaCode = async (req, res, next) => {
     const classroomCode = req.params.classroomCode;
     const {  user  } = req;
     const classroom = await classroomService.getClassroomViaCode(classroomCode);
-    const response = await classroomService.joinClassroom(user, classroom);
-    if (response) {
-      return responseUtil.success(res, 201, response);
+    if (await classroomService.isStudentInClassroom(user, classroom)) {
+      return responseUtil.error(res, 200, "Already joined");
+    } else if (await classroom.isOwnClass(user, classroom)) {
+      return responseUtil.error(res, 200, "You are teacher")
+    } else {
+      const response = await classroomService.joinClassroom(user, classroom);
+      if (response) {
+        return responseUtil.success(res, 201, response);
+      }
     }
-    return responseUtil.error(res, 200, "Already joined");
   } catch (err) {
     next(err);
   }
@@ -172,11 +182,16 @@ const joinClassroomViaCode = async (req, res, next) => {
 const leaveClassroom = async (req, res, next) => {
   try {
     const { user, classroom } = req;
-    const response = await classroomService.leaveClassroom(user, classroom);
-    if (response) {
-      return responseUtil.success(res, 201, response);
+    if (! (await classroomService.isStudentInClassroom(user, classroom))) {
+      return responseUtil.error(res, 200, "You are not part of class");
+    } else if ((await classroomService.isOwnClass(user, classroom))) {
+      return responseUtil.error(res, 200, "You are teacher")
+    } else {
+      const response = await classroomService.leaveClassroom(user, classroom);
+      if (response) {
+        return responseUtil.success(res, 201, response);
+      }
     }
-    return responseUtil.error(res, 200, "Can leave this room");
   } catch (err) {
     next(err);
   }
@@ -234,7 +249,7 @@ const getUserClassrooms = async (req, res, next) => {
 module.exports = {
   getClassrooms,
   postClassroom,
-  middleware: validateClassId,
+  validateClassId: validateClassId,
   getClassroom,
   putClassroom,
   patchClassroom,

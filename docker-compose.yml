@@ -2,11 +2,10 @@ version: '3.4'
 services:
   db:
     image: 'mysql:5.7'
-    container_name: db
+    container_name: db-ols
     env_file:
       - ./.env
     command: '--default-authentication-plugin=mysql_native_password'
-    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: '${DATABASE_PASSWORD}'
       MYSQL_DATABASE: '${DATABASE_NAME}'
@@ -17,12 +16,13 @@ services:
   node:
     build:
       context: .
-    container_name: remind
+    container_name: ols
     environment:
       PORT: 3000
     command:
       - npm
-      - start
+      - run
+      - debug
     depends_on:
       - db
     links:
