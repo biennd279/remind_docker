@@ -14,22 +14,22 @@ services:
       MYSQL_PASSWORD: '${DATABASE_PASSWORD}'
     volumes:
       - './.docker/data/db:/var/lib/mysql'
-
   node:
     build:
       context: .
     container_name: remind
     environment:
       PORT: 3000
-    command: ["npm", "start"]
+    command:
+      - npm
+      - start
     depends_on:
       - db
     links:
       - db
     volumes:
+      - './:/app/'
       - '/app/node_modules'
-      - '.:/app'
-
   web:
     image: 'nginx:1.20-alpine'
     container_name: webserver
