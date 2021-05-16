@@ -4,10 +4,8 @@ ENV NODE_ENV production
 
 WORKDIR /app
 
-COPY ["package.json", "./"]
+COPY ["package.json", "/app"]
 
-COPY . .
+RUN npm install --production
 
-RUN npm install --silent --production --save
-
-CMD ["npm", "run", "start"]
+ENV PATH /app/node_modules/.bin:$PATH
