@@ -168,7 +168,7 @@ const joinClassroomViaCode = async (req, res, next) => {
     if (!classroom) {
       return responseUtil.error(res, 404, "Not found code");
     }
-
+    
     if (await classroomService.isStudentInClassroom(user, classroom)) {
       return responseUtil.error(res, 200, "Already joined");
     } else if (await classroomService.isOwnClass(user, classroom)) {
