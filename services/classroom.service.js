@@ -149,7 +149,7 @@ async function isStudentInClassroom(user, classroom) {
  * @param {Classroom} classroom
  */
 async function isOwnClass(user, classroom) {
-  let isOwn = await classroom.$relatedQuery("owner").where("id", user.id).resultSize();;
+  let isOwn = await classroom.$relatedQuery("owner").where("id", user.id).resultSize();
   return isOwn > 0;
 }
 
