@@ -70,7 +70,7 @@ class Classroom extends Model {
       relation: Model.ManyToManyRelation,
       modelClass: User,
       filter: (query) =>
-        query.select("id", "name", "email").where("type", "Owner"),
+        query.select("id", "name", "email", "avatar_url").where("type", "Owner"),
       join: {
         from: "classroom.id",
         through: {
@@ -87,7 +87,7 @@ class Classroom extends Model {
       relation: Model.ManyToManyRelation,
       modelClass: User,
       filter: (query) =>
-        query.select("id", "name", "email").where("type", "Member"),
+        query.select("id", "name", "email", "avatar_url").where("type", "Member"),
       join: {
         from: "classroom.id",
         through: {
