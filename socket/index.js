@@ -8,7 +8,6 @@ const { socketAuth } = require("../config/auth");
  */
 exports.listen = (httpServer) => {
   const io = new Server(httpServer, {
-    allowEIO3: true,
     upgrade: false,
     transports: [
         'websocket'
