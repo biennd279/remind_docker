@@ -1,9 +1,11 @@
 const event = require("../config").SocketIOEvent.message;
+const error_event = require("../config").SocketIOEvent.error
 const errorMsg = require("../config").SocketErrorMessage;
 const Message = require("../models/Message");
 const { messageService, userService, fileService } = require("../services");
 const scheduleUtil = require("../utils/scheduleUtils");
 const debug = require("debug")("remind-clone:socket:message");
+const util = require('util');
 
 class MessageNamespace {
   /**
@@ -53,45 +55,33 @@ class MessageNamespace {
    * Then, it will insert the new message to the database, getting
    * its ID and emit the new message to all participant in
    * that conversation.
-   * @param {Object} message
-   * @param {Object} message.sender
-   * @param {Object} message.conversation
-   * @param {Object} message.message
-   * @param {Boolean} [message.canReply]
-   * @param {Object} [message.attachment]
-   * @param {Date | String} message.createdAt
-   * @param {Date | String} [message.scheduledAt]
+   * @param {String} messageData
+   * @param {Function} fn
    * @param {NewMessageHandlerCallback} fn - Notify sender that the message has been received
    * @private
    */
-  async _newMessageHandler(message, fn = function (err, msg) {}) {
-    let broadcastMessage = {
-      sender: message.sender,
-      message: message.message || message.messageText,
-      messageText: message.messageText,
-      createdAt: message.createdAt,
-      conversationId: message.conversationId,
-      canReply: message.canReply || true,
-      attachment: message.attachment,
-    };
-    //TODO: Implement scheduled message
-    if (fn) fn(null, broadcastMessage);
-    console.log(message);
+  async _newMessageHandler(messageData, fn = function (err, msg) {}) {
+
     try {
+      const message = JSON.parse(messageData)
+
       if (message.attachment != null) {
         let newFile = await fileService.insertFile(message.attachment);
         message.attachment.id = newFile.id;
       }
+
       let newMessage = await messageService.insertMessage({
-        sender_id: message.sender.id,
-        conversation_id: message.conversationId, //TODO: check if the user is in that conversation
-        message: message.message || message.messageText,
-        message_text: message.messageText,
+        sender_id: message.sender_id,
+        conversation_id: message.conversation_id, //TODO: check if the user is in that conversation
+        message: message.message || message.message_text,
+        message_text: message.message_text,
         attachment_id: message.attachment ? message.attachment.id : undefined,
-      });
-      broadcastMessage.id = newMessage.id;
-      let convoChannel = `convo#${broadcastMessage.conversationId}`;
-      this.nsp.in(convoChannel).emit(event.NEW_MESSAGE, broadcastMessage);
+      })
+
+      let convoChannel = `convo#${newMessage.conversation_id}`;
+      this.nsp.in(convoChannel).emit(event.NEW_MESSAGE, newMessage);
+
+      if (fn) fn(null, newMessage)
     } catch (err) {
       debug(err);
       if (fn) fn(new Error(errorMsg.DEFAULT));
@@ -100,35 +90,27 @@ class MessageNamespace {
 
   /**
    * Handle NEW_GROUP_CONVERSATION event
-   * @param {Object} data
-   * @param {Object} data.sender
-   * @param {Object} data.message
-   * @param {Boolean} [data.canReply]
-   * @param {Object} [data.attachment]
-   * @param {Number} data.classroomId
-   * @param {Array<Number>} data.receiverIds
-   * @param {Date | String} data.createdAt
-   * @param {Date | String} [data.scheduledAt]
+   * @param {String} jsonData
    * @param {Function} fn
    */
-  async _newGroupConversationHandler(data, fn) {
+  async _newGroupConversationHandler(jsonData, fn) {
+    let data = JSON.parse(jsonData)
+
     const {
-      sender,
+      sender_id,
       message,
-      createdAt,
       receiverIds,
-      canReply,
       attachment,
       classroomId,
     } = data;
 
-    let allUserIds = [sender.id, ...receiverIds];
+    let allUserIds = [sender_id, ...receiverIds];
     try {
       // Create new conversation in db
       let newConvoId = await messageService.createNewConversation(
         {
           type: "group",
-          creator_id: sender.id,
+          creator_id: sender_id,
           classroom_id: classroomId,
         },
         allUserIds
@@ -145,27 +127,16 @@ class MessageNamespace {
           s.join(newConvoChannel);
         });
       });
-      // Add new message in db
-      let broadcastMessage = {
-        sender: sender,
-        message: message.richText || message.text,
-        createdAt: createdAt,
-        conversationId: newConvoId,
-        canReply: canReply || true,
-        attachment: attachment,
-      };
 
       let newMessage = await messageService.insertMessage({
-        sender_id: sender.id,
+        sender_id: sender_id,
         conversation_id: newConvoId, //TODO: check if the user is in that conversation
         message: message.richText || message.text,
         message_text: message.text,
         attachment_id: attachment ? attachment.id : undefined,
       });
-      broadcastMessage.id = newMessage.id;
 
-      // Emit the new message to socket subscribing to this conversation
-      this.nsp.in(newConvoChannel).emit(event.NEW_MESSAGE, broadcastMessage);
+      this.nsp.in(newConvoChannel).emit(event.NEW_MESSAGE, newMessage);
     } catch (err) {
       debug(err);
       if (fn) fn(new Error(errorMsg.DEFAULT));

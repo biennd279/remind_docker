@@ -33,6 +33,14 @@ class Message extends Model {
         parent_message_id: {
           type: "integer",
         },
+        created_at: {
+          type: "string",
+          format: "date-time"
+        },
+        update_at: {
+          type: "string",
+          format: "date-time"
+        }
       },
     };
   }
@@ -64,6 +72,14 @@ class Message extends Model {
         },
       },
     };
+  }
+
+  $beforeInsert() {
+    this.created_at = new Date(Date.now())
+  }
+
+  $beforeUpdate() {
+    this.updated_at = new Date(Date.now());
   }
 }
 

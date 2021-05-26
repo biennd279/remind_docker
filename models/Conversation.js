@@ -55,6 +55,14 @@ class Conversation extends Model {
       },
     };
   }
+
+  $beforeInsert() {
+    this.created_at = new Date(Date.now())
+  }
+
+  $beforeUpdate() {
+    this.updated_at = new Date(Date.now());
+  }
 }
 
 module.exports = Conversation;
