@@ -1,21 +1,30 @@
-const Server = require("socket.io");
+const { Server } = require("socket.io");
 const MessageNsp = require("./message");
 const { socketAuth } = require("../config/auth");
 
-let io;
+/**
+ *
+ * @param {import("../app")} httpServer
+ */
 exports.listen = (httpServer) => {
-  io = new Server(httpServer);
-  const messageNsp = io.of("/message");
+  const io = new Server(httpServer, {
+    allowEIO3: true,
+    upgrade: false,
+    transports: [
+        'websocket'
+    ]
+  });
 
   io.on("connection", (socket) => {
+    socket.emit("Hello world")
     socket.send("socket.io setup success");
 
-    socket.on("echo", (message, fn) => {
+    socket.on("echo", (message) => {
       socket.emit("echo", message);
-      io.emit("echo", "TELL ME!!!");
-      fn();
     });
   });
+
+  const messageNsp = io.of("/message");
 
   messageNsp.use(socketAuth);
 

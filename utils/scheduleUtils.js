@@ -8,7 +8,7 @@ const schedule = require("node-schedule");
  * @returns cron job's object
  */
 exports.schedule = (expression, handler) => {
-  return schedule.scheduleJob(expression, handler);
+  return schedule.schedule(expression, handler)
 };
 
 /**
@@ -17,22 +17,22 @@ exports.schedule = (expression, handler) => {
  * @param {Function} handler
  */
 exports.scheduleOnce = (date, handler) => {
-  return schedule.scheduleJob(date, handler);
+  return schedule.scheduleOnce(date, handler)
 };
 
 // For testing purposes
-if (require.main === module) {
-  let message = "What..." + Date.now();
-  // handler's only parameter is the date when the job was fired.
-  const repeatedTask = schedule.scheduleJob("* * * * * *", (currentDate) => {
-    message = "What..." + Date.now();
-    console.log(message);
-    console.log(currentDate);
-  });
-
-  const laterDate = new Date(Date.now() + 5000).toISOString();
-  const oneTimeTask = exports.scheduleOnce(laterDate, function (x) {
-    console.log(x);
-    console.log("What");
-  });
-}
+// if (require.main === module) {
+//   let message = "What..." + Date.now();
+//   // handler's only parameter is the date when the job was fired.
+//   const repeatedTask = schedule.scheduleJob("* * * * * *", (currentDate) => {
+//     message = "What..." + Date.now();
+//     console.log(message);
+//     console.log(currentDate);
+//   });
+//
+//   const laterDate = new Date(Date.now() + 5000).toISOString();
+//   const oneTimeTask = exports.scheduleOnce(laterDate, function (x) {
+//     console.log(x);
+//     console.log("What");
+//   });
+// }
