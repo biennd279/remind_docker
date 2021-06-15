@@ -60,7 +60,7 @@ exports.socketAuth = (socket, next) => {
   if (!token) return next(new Error("Authentication Error"));
   jwt.verify(token, secretOrKey, async (err, payload) => {
     if (err) {
-      next(err);
+      return next(err);
     }
     socket.user = await userService
         .getUserById(payload.id)
