@@ -109,49 +109,37 @@ class MessageNamespace {
     let allUserIds = [sender_id, ...receiver_ids];
     try {
       // Create new conversation in db
-      // let newConversation = await messageService.createNewConversation(
-      //   {
-      //     type: "group",
-      //     creator_id: sender_id,
-      //     classroom_id: classroom_id,
-      //   },
-      //   allUserIds
-      // );
+      let newConversation = await messageService.createNewConversation(
+        {
+          type: "group",
+          creator_id: sender_id,
+          classroom_id: classroom_id,
+        },
+        allUserIds
+      );
       // Subscribe all user involved to this conversation (socket.io)
-      // let newConvoChannel = `convo#${newConversation.id}`;
+      let newConvoChannel = `convo#${newConversation.id}`;
 
       // Get all clients of users inside this conversation and join
       // them all.
       let allUserChannels = allUserIds.map((userId) => `user#${userId}`);
 
-      this.nsp.allSockets()
-          .then(ids => {
-            this.nsp.emit(
-                error_event.PROCESS_ERROR,
-                JSON.stringify(ids)
-            );
-          })
-          .catch(err => {
-            throw err;
-          });
-
-
       allUserChannels.forEach(channel => {
-
+        this.nsp.to(channel).socketsJoin(newConvoChannel);
       })
 
-      // let newMessage = await messageService.insertMessage({
-      //   sender_id: sender_id,
-      //   conversation_id: newConversation.id, //TODO: check if the user is in that conversation
-      //   message: message.richText || message.text,
-      //   message_text: message.text,
-      //   attachment_id: attachment ? attachment.id : undefined,
-      // });
-      //
-      // this.nsp.to(newConvoChannel).emit(event.NEW_GROUP_CONVERSATION, {
-      //   conversation: newConversation,
-      //   first_message: newMessage
-      // })
+      let newMessage = await messageService.insertMessage({
+        sender_id: message.sender_id,
+        conversation_id: newConversation.id, //TODO: check if the user is in that conversation
+        message: message.message || message.message_text,
+        message_text: message.message_text,
+        attachment_id: message.attachment ? message.attachment.id : undefined,
+      });
+
+      this.nsp.to(newConvoChannel).emit(event.NEW_GROUP_CONVERSATION, {
+        conversation: newConversation,
+        first_message: newMessage
+      })
     } catch (err) {
       debug(err);
       if (fn) fn(new Error(errorMsg.DEFAULT));
