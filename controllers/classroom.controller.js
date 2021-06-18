@@ -151,7 +151,7 @@ const joinClassroom = async (req, res, next) => {
     } else {
       const response = await classroomService.joinClassroom(user, classroom);
       if (response) {
-        return responseUtil.success(res, 201, response);
+        return responseUtil.success(res, 202, response);
       }
     }
   } catch (err) {
@@ -165,6 +165,10 @@ const joinClassroomViaCode = async (req, res, next) => {
     const {  user  } = req;
     const classroom = await classroomService.getClassroomViaCode(classroomCode);
 
+    if (!classroom) {
+      return responseUtil.error(res, 404, "Not found code");
+    }
+    
     if (await classroomService.isStudentInClassroom(user, classroom)) {
       return responseUtil.error(res, 200, "Already joined");
     } else if (await classroomService.isOwnClass(user, classroom)) {
@@ -172,7 +176,7 @@ const joinClassroomViaCode = async (req, res, next) => {
     } else {
       const response = await classroomService.joinClassroom(user, classroom);
       if (response) {
-        return responseUtil.success(res, 201, response);
+        return responseUtil.success(res, 202, response);
       }
     }
   } catch (err) {
@@ -190,7 +194,7 @@ const leaveClassroom = async (req, res, next) => {
     } else {
       const response = await classroomService.leaveClassroom(user, classroom);
       if (response) {
-        return responseUtil.success(res, 201, response);
+        return responseUtil.success(res, 202, response);
       }
     }
   } catch (err) {

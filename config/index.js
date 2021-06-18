@@ -19,6 +19,10 @@ exports.SocketIOEvent = {
     NEW_MESSAGE: "NEW_MESSAGE",
     NEW_GROUP_CONVERSATION: "NEW_GROUP_CONVERSATION",
   },
+  error : {
+    WRONG_MESSAGE: "WRONG_MESSAGE",
+    PROCESS_ERROR: "PROCESS_ERROR"
+  }
 };
 
 exports.SocketErrorMessage = {

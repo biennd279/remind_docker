@@ -41,9 +41,16 @@ class Conversation extends Model {
 
   static get relationMappings() {
     return {
-      member: {
+      members: {
         relation: Model.ManyToManyRelation,
         modelClass: require("./User"),
+        filter: (query) =>
+            query.select(
+                "id",
+                "name",
+                "email",
+                "avatar_url",
+            ),
         join: {
           from: "conversation.id",
           through: {
@@ -54,6 +61,14 @@ class Conversation extends Model {
         },
       },
     };
+  }
+
+  $beforeInsert() {
+    this.created_at = new Date(Date.now())
+  }
+
+  $beforeUpdate() {
+    this.updated_at = new Date(Date.now());
   }
 }
 

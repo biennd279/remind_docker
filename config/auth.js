@@ -56,16 +56,15 @@ exports.jwtAuth = () => {
  * jwt token during handshake.
  */
 exports.socketAuth = (socket, next) => {
-  const token = socket.handshake.query.token;
+  const token = socket.handshake.auth.token;
   if (!token) return next(new Error("Authentication Error"));
   jwt.verify(token, secretOrKey, async (err, payload) => {
     if (err) {
-      next(err);
+      return next(err);
     }
-    let user = await userService
-      .getUserById(payload.id)
-      .modify("excludePassword");
-    socket.user = user;
+    socket.user = await userService
+        .getUserById(payload.id)
+        .modify("excludePassword");
     next();
   });
 };

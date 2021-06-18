@@ -21,37 +21,48 @@ exports.insertMessageWithAttachment = async (messageWithAttachment) => {
 exports.getConversationMessages = (conversationId) => {
   //TODO: Use pagination
   return Message.query()
-    .select(
-      "message.id",
-      "conversation_id as conversationId",
-      "message",
-      "message.message_text as messageText",
-      "message.created_at as createdAt"
-    )
+    .select()
     .where("conversation_id", conversationId)
-    .withGraphFetched("[sender(idAndName), attachment]");
 };
 
 /**
  * Create new conversation with the following members in it
  * @param {Conversation} conversation
  * @param {Array<Number>} memberIds
+ * @return Conversation
  */
 exports.createNewConversation = async (conversation, memberIds) => {
   const knex = Conversation.knex();
   try {
-    let newConvo = Conversation.fromJson(conversation);
-    const { id: newConvoId } = await Conversation.query().insert(newConvo);
+    const newConversation = await Conversation.query().insert(conversation);
 
     return knex("participant").insert(
       memberIds.map((memberId) => {
         return {
-          conversation_id: newConvoId,
+          conversation_id: newConversation.id,
           user_id: memberId,
         };
       })
-    ).then(() => newConvoId);
+    ).then(() => newConversation);
   } catch (err) {
     throw err;
   }
 };
+
+/**
+ *
+ * @param {Number} convoId
+ * @returns {*}
+ */
+exports.getConversationDetail = (convoId) => {
+  return Conversation.query().findById(convoId).withGraphFetched("members")
+};
+
+/**
+ *
+ * @param {Number} convoId
+ */
+exports.getConversationMember = async (convoId) => {
+  let convo = await Conversation.query().findById(convoId).first()
+  return convo.$relatedQuery("members")
+}
