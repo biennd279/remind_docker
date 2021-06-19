@@ -1,5 +1,5 @@
 # remind_docker
-Port from [remind_clone_web_server](https://github.com/tuananhlai/remind_clone_web_server)
+
 ## Brief
 ## Requirement
 ## Install 
